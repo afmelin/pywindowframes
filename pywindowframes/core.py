@@ -1016,6 +1016,9 @@ def back_to_front_blitting():
 
 
 def window_selection():
+    # TODO most likely doesn't take into account if window is visible or not
+    # TODO implement
+
     top_layer_window = test_multiple_window_collision()
     # print(f"Window layers: {[s.layer for s in _windows]}")
 
@@ -1076,6 +1079,7 @@ def adjusted_mouse_rect_collision(window, rect):
 def buttons_mouse_over_internal(window):
     """
     Checks if mouse is over any window part and if the part is clicked
+    If a mouse click registers, posts an event that pywindowframes caught the click
     """
 
     # reset flags
@@ -1088,39 +1092,60 @@ def buttons_mouse_over_internal(window):
     if adjusted_mouse_rect_collision(window, window.border_rect):
         window.m_border_rect = True
 
+        # minimize button clicked
         if window.can_be_minimized and adjusted_mouse_rect_collision(window, window.minimize_button_rect):
             window.m_minimize_button = True
-            print("Mouse over", window.window_title, "minimize")
+
             if mouse0_cd():
 
                 if window.is_minimized:
                     maximize(window)
-                    print("Maximizing")
+
                 elif not window.is_minimized:
-                    print("Minimizing")
                     minimize(window)
 
-        elif adjusted_mouse_rect_collision(window, window.close_button_rect):
-            window.m_close_button = True
-            if mouse0_cd():
-                window.close()
-                # print("Close button clicked")
+                # post event that pywindowframes caught the mouse click
+                post_event((window, "pywindowframes_clicked"))
 
+        # close button clicked
+        elif adjusted_mouse_rect_collision(window, window.close_button_rect):
+
+            window.m_close_button = True
+
+            if mouse0_cd():
+
+                window.close()
+
+                # post event that pywindowframes caught the mouse click
+                post_event((window, "pywindowframes_clicked"))
+
+        # top border is clicked but no button in top border
         else:
             if pg.mouse.get_pressed(num_buttons=3)[0]:
-                # print("Top border clicked")
+
                 window.is_dragged = True
                 window.focus_window()
 
+                # post event that pywindowframes caught the mouse click
+                post_event((window, "pywindowframes_clicked"))
+
+        # reset mouse rel (because it returns mouse rel since it was last _called_
         if not window.is_dragged:
             pg.mouse.get_rel()
 
+    # window rect collision
     if adjusted_mouse_rect_collision(window, window.rect):
+
         window.m_window_rect = True
+
         if not window.is_minimized:
             if mouse0_cd():
-                print("Window clicked")
+                # print("Window clicked")
                 window.focus_window()
+
+                # post event that pywindowframes caught the mouse click
+                post_event((window, "pywindowframes_clicked"))
+
     else:
         window.m_window_rect = False
 
@@ -1145,6 +1170,9 @@ def elements_mouse_over_clicks(window):
                         # print("mouse clicked (top level)")
                         e.on_click()
 
+                        # post event that pywindowframes caught the mouse click
+                        post_event((window, "pywindowframes_clicked"))
+
             # if windows are not stacked, allow mouse over and clicking as usual
             else:
                 e.set_mouse_over()
@@ -1153,6 +1181,9 @@ def elements_mouse_over_clicks(window):
                 if mouse0_cd(elem=True):
                     # print("mouse clicked (no window stacking)")
                     e.on_click()
+
+                    # post event that pywindowframes caught the mouse click
+                    post_event((window, "pywindowframes_clicked"))
 
 
 """
