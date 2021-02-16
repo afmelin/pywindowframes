@@ -1,6 +1,5 @@
 import pygame as pg
 from time import time
-from debug import debdec
 
 
 class BaseElement:

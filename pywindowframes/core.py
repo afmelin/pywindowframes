@@ -13,7 +13,6 @@ TODO:
 import random
 import pygame as pg
 from time import time
-from debug import debdec
 random.seed()
 
 

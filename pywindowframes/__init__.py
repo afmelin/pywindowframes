@@ -1,3 +1,7 @@
+__version__ = 0.146
+print(f"Thank you for using pywindowframes. Please report any indecencies to 79141108+afmelin@users.noreply.github.com."
+      f"\n Version: {__version__}")
+
 from core import WindowBase
 from core import StaticWindow
 
